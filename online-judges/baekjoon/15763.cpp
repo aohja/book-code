@@ -4,7 +4,8 @@
  * Problem: Team Tic Tac Toe 
 **/
 #include <bits/stdc++.h>
-
+#define For(i, x, y) for (int i = (int) x; i < (int) y; i++) 
+#define Rof(i, x, y) for (int i = (int) x; i >= (int) y; --i)
 #define sz(v) ((int)(v).size())
 #define all(v) (v).begin(),(v).end()
 
@@ -16,90 +17,142 @@ using ll = long long;
 #define debug(...) 42
 #endif
 
-template <typename T>
-inline void read(T &f) {
-    f = 0; T fu = 1; char c = getchar();
-    while (c < '0' || c > '9') { if (c == '-') { fu = -1; } c = getchar(); }
-    while (c >= '0' && c <= '9') { f = (f << 3) + (f << 1) + (c & 15); c = getchar(); }
-    f *= fu;
+namespace Read {
+template<class T> void Read(T& x) {
+  std::cin >> x;
+}
+template<class T> void Read(std::vector<T>& v) {
+  For(i, 0, sz(v)) {
+    read(v[i]);
+  } 
+}
+void read() {}
+template<class H, class... T> void read(H& h, T&... t) {
+  Read(h);
+  read(t...);
+}
 }
 
-template <typename T>
-void print(T x) {
-    if (x < 0) putchar('-'), x = -x;
-    if (x < 10) putchar(x + 48);
-    else print(x / 10), putchar(x % 10 + 48);
+namespace Write {
+template<class T> void Write(const T& x) {
+  std::cout << x;
 }
-
-template <typename T>
-void print(T x, char t) {
-    print(x); putchar(t);
+template<typename T, typename V> void Write(const std::pair<T, V> x) {
+  std::cout << x.first << " " << x.second;
 }
-
-char grid[3][4];
-
-int row(int r) {
-    int unq = 0;
-    std::map<char, bool> mp;
-    for (int i = 0; i < 3; i++) {
-        if (!mp.count(grid[r][i])) {
-            unq++;
-        }
-        mp[grid[r][i]] = 1;
+template<typename T> void Write(const std::vector<T>& v) {
+  For(i, 0, sz(v)) {
+    Write(v[i]);
+    if (i != sz(v) - 1) {
+      Write(' ');
     }
-    return unq;
+  }
+}
+void write() {
+  Write('\n');
+};
+template<class H, class... T> void write(const H& h, const T&... t) {
+  Write(h);
+  if (sizeof...(t))
+    Write(' ');
+  write(t...);
+}
 }
 
-int col(int c) {
-    int unq = 0;
-    std::map<char, bool> mp;
-    for (int i = 0; i < 3; i++) {
-        if (!mp.count(grid[i][c])) {
-            unq++;
-        }
-        mp[grid[i][c]] = 1;
+char board[3][3];
+
+bool check_row(char a, char b) {
+  For(i, 0, 3) {
+    bool ok = true, seen_a = false, seen_b = false;
+    For(j, 0, 3) {
+      if (board[i][j] != a && board[i][j] != b) {
+        ok = false;
+        break;
+      }
+      if (board[i][j] == a) {
+        seen_a =  true;
+      }
+      if (board[i][j] == b) {
+        seen_b = true;
+      }
     }
-    return unq;
+    if (ok && seen_a && seen_b) return true;
+  }
+  return false;
 }
 
-int ldiag() {
-    int unq = 0;
-    std::map<char, bool> mp;
-    for (int i = 0; i < 3; i++) {
-        if (!mp.count(grid[i][i])) {
-            unq++;        
-        }
-        mp[grid[i][i]] = 1;
+bool check_col(char a, char b) {
+  For(i, 0, 3) {
+    bool ok = true, seen_a = false, seen_b = false;
+    For(j, 0, 3) {
+      if (board[j][i] != a && board[j][i] != b) {
+        ok = false;
+        break;
+      }
+      if (board[j][i] == a) {
+        seen_a =  true;
+      }
+      if (board[j][i] == b) {
+        seen_b = true;
+      }
     }
-    return unq;
+    if (ok && seen_a && seen_b) return true;
+  }
+  return false;
 }
 
-int rdiag() {
-    int unq = 0;
-    std::map<char, bool> mp;
-    for (int i = 0; i < 3; i++) {
-        debug(i, 2 - i);
-        if (!mp.count(grid[i][2 - i])) {
-            unq++;        
-        }
-        mp[grid[i][2 - i]] = 1;
+bool check_ldiag(char a, char b) {
+  bool seen_a = false, seen_b = false;
+  For(i, 0, 3) {
+    if (board[i][i] != a && board[i][i] != b) {
+      return false;
     }
-    return unq;
+    if (board[i][i] == a) {
+      seen_a = true;
+    }
+    if (board[i][i] == b) {
+      seen_b = true;
+    }
+  }
+  return seen_a && seen_b;
+}
+
+bool check_rdiag(char a, char b) {
+  bool seen_a = false, seen_b = false;
+  For(i, 0, 3) {
+    if (board[i][2 - i] != a && board[i][2 - i] != b) {
+      return false;
+    }
+    if (board[i][2 - i] == a) {
+      seen_a = true;
+    }
+    if (board[i][2 - i] == b) {
+      seen_b = true;
+    }
+  }
+  return seen_a && seen_b;
+}
+
+bool check(char a, char b) {
+  return check_row(a, b) || check_col(a, b) || check_ldiag(a, b) || check_rdiag(a, b);
 }
 
 int main() {
-    for (int i = 0; i < 3; i++) {
-        scanf("%s", grid[i]);
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(0);
+  For(i, 0, 3) {
+    read(board[i]);
+  }
+  int sin = 0, dou = 0; 
+  for (int i = 0; i < 26; i++) {
+    char a = 'A' + i;
+    sin += check(a, a);
+    for (int j = 0; j < i; j++) {
+      char b = (char) 'A' + j;
+      dou += check(a, b);
     }
-    int ans[4];
-    memset(ans, 0, 12);
-    for (int i = 0; i < 3; i++) {
-        ans[col(i)]++;
-        ans[row(i)]++;
-    }
-    ans[ldiag()]++;
-    ans[rdiag()]++;
-    print(ans[1], '\n');
-    print(ans[2], '\n');
-    return 0;
+  }
+  write(sin);
+  write(dou);
+  return 0;
 }
